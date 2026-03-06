@@ -14,4 +14,16 @@ public class Location {
     this.maxNumberOfWarehouses = maxNumberOfWarehouses;
     this.maxCapacity = maxCapacity;
   }
+
+  public String getIdentification() {
+    return identification;
+  }
+
+  public int getMaxNumberOfWarehouses() {
+      return maxNumberOfWarehouses;
+  }
+
+  public int getMaxCapacity() {
+      return maxCapacity;
+  }
 }
