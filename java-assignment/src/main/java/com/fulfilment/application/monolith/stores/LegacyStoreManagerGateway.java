@@ -17,6 +17,11 @@ public class LegacyStoreManagerGateway {
     writeToFile(store);
   }
 
+  public void notifyStoreDeleted(Long storeId) {
+    // Logic to notify the legacy system about the deleted store
+    System.out.println("Notified legacy system about deleted store with ID: " + storeId);
+}
+
   private void writeToFile(Store store) {
     try {
       // Step 1: Create a temporary file
