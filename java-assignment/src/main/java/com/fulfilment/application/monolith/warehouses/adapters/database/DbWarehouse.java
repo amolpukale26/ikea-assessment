@@ -39,4 +39,15 @@ public class DbWarehouse {
     warehouse.archivedAt = this.archivedAt;
     return warehouse;
   }
+
+  public static DbWarehouse fromWarehouse(Warehouse warehouse) {
+    DbWarehouse entity = new DbWarehouse();
+    entity.businessUnitCode = warehouse.businessUnitCode;
+    entity.location = warehouse.location;
+    entity.capacity = warehouse.capacity;
+    entity.stock = warehouse.stock;
+    entity.createdAt = LocalDateTime.now();
+    entity.archivedAt = warehouse.archivedAt;
+    return entity;
+  }
 }

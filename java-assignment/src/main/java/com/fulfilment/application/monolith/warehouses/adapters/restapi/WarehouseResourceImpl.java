@@ -20,38 +20,102 @@ public class WarehouseResourceImpl implements WarehouseResource {
 
   @Override
   public Warehouse createANewWarehouseUnit(@NotNull Warehouse data) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'createANewWarehouseUnit'");
+
+      // Business Unit uniqueness
+      if (warehouseRepository.existsByBusinessUnitCode(data.getBusinessUnitCode())) {
+          throw new RuntimeException("Business Unit already exists");
+      }
+
+      // Stock <= Capacity
+      if (data.getStock() > data.getCapacity()) {
+          throw new RuntimeException("Stock cannot exceed capacity");
+      }
+
+      // (Location validation skipped if no Location table exists)
+
+    var domainWarehouse = toDomainWarehouse(data);
+
+    warehouseRepository.create(domainWarehouse);
+
+    return toWarehouseResponse(domainWarehouse);
   }
 
   @Override
-  public Warehouse getAWarehouseUnitByID(String id) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getAWarehouseUnitByID'");
+  public com.warehouse.api.beans.Warehouse getAWarehouseUnitByID(String id) {
+
+    var domainWarehouse =
+        warehouseRepository.findByBusinessUnitCode(id);
+
+    return toWarehouseResponse(domainWarehouse);
   }
 
   @Override
   public void archiveAWarehouseUnitByID(String id) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'archiveAWarehouseUnitByID'");
+
+    var warehouse =
+        warehouseRepository.findByBusinessUnitCode(id);
+
+    if (warehouse.archivedAt != null) {
+      throw new RuntimeException("Warehouse already archived");
+    }
+
+    warehouseRepository.remove(warehouse);
   }
 
   @Override
-  public Warehouse replaceTheCurrentActiveWarehouse(
-      String businessUnitCode, @NotNull Warehouse data) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException(
-        "Unimplemented method 'replaceTheCurrentActiveWarehouse'");
+  public com.warehouse.api.beans.Warehouse replaceTheCurrentActiveWarehouse(
+      String businessUnitCode,
+      @NotNull com.warehouse.api.beans.Warehouse data) {
+
+    var current =
+        warehouseRepository.findActiveByBusinessUnitCode(businessUnitCode);
+
+    // Capacity Accommodation
+    if (data.getCapacity() < current.stock) {
+      throw new RuntimeException(
+          "New warehouse cannot accommodate existing stock");
+    }
+
+    // Stock Matching
+    if (!data.getStock().equals(current.stock)) {
+      throw new RuntimeException(
+          "Stock must match previous warehouse");
+    }
+
+    // Archive old warehouse
+    warehouseRepository.remove(current);
+
+    // Create new warehouse
+    var newDomainWarehouse = toDomainWarehouse(data);
+    warehouseRepository.create(newDomainWarehouse);
+
+    return toWarehouseResponse(newDomainWarehouse);
   }
 
-  private Warehouse toWarehouseResponse(
+
+  private com.warehouse.api.beans.Warehouse toWarehouseResponse(
       com.fulfilment.application.monolith.warehouses.domain.models.Warehouse warehouse) {
-    var response = new Warehouse();
+
+    var response = new com.warehouse.api.beans.Warehouse();
     response.setBusinessUnitCode(warehouse.businessUnitCode);
     response.setLocation(warehouse.location);
     response.setCapacity(warehouse.capacity);
     response.setStock(warehouse.stock);
 
     return response;
+  }
+
+  private com.fulfilment.application.monolith.warehouses.domain.models.Warehouse
+      toDomainWarehouse(com.warehouse.api.beans.Warehouse apiWarehouse) {
+
+    var domain =
+        new com.fulfilment.application.monolith.warehouses.domain.models.Warehouse();
+
+    domain.businessUnitCode = apiWarehouse.getBusinessUnitCode();
+    domain.location = apiWarehouse.getLocation();
+    domain.capacity = apiWarehouse.getCapacity();
+    domain.stock = apiWarehouse.getStock();
+
+    return domain;
   }
 }
