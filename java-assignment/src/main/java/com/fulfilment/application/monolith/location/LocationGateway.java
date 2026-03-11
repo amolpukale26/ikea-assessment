@@ -4,6 +4,7 @@ import com.fulfilment.application.monolith.warehouses.domain.models.Location;
 import com.fulfilment.application.monolith.warehouses.domain.ports.LocationResolver;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class LocationGateway implements LocationResolver {
 
@@ -22,9 +23,19 @@ public class LocationGateway implements LocationResolver {
 
   @Override
   public Location resolveByIdentifier(String identifier) {
-      return locations.stream()
-          .filter(location -> location.getIdentification().equals(identifier))
-          .findFirst()
-          .orElse(null);
+    if (identifier == null) {
+      return null;
+    }
+
+    String cleanId = identifier.trim();
+
+    if (cleanId.isEmpty()) {
+      return null;
+    }
+
+    return locations.stream()
+        .filter(loc -> Objects.equals(loc.getIdentification(), cleanId))
+        .findFirst()
+        .orElse(null);
   }
 }
