@@ -1,5 +1,8 @@
 package com.fulfilment.application.monolith.warehouses.domain.models;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
+@RegisterForReflection
 public class Location {
   public String identification;
 

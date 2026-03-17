@@ -1,7 +1,9 @@
 package com.fulfilment.application.monolith.warehouses.domain.models;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.time.LocalDateTime;
 
+@RegisterForReflection
 public class Warehouse {
 
   // unique identifier
